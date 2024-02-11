@@ -79,7 +79,7 @@ pub fn cycle(self: *Self) void {
     self.opcode = @as(u16, @intCast(self.memory[self.program_counter])) << 8 | self.memory[self.program_counter + 1];
 
     //X000
-    var first = self.opcode >> 12;
+    const first = self.opcode >> 12;
 
     switch (first) {
         0x0 => {
@@ -102,7 +102,7 @@ pub fn cycle(self: *Self) void {
             self.program_counter = self.opcode & 0x0FFF;
         },
         0x3 => {
-            var x = (self.opcode & 0x0F00) >> 8;
+            const x = (self.opcode & 0x0F00) >> 8;
 
             if (self.registers[x] == self.opcode & 0x00FF) {
                 self.increment_pc();
@@ -110,7 +110,7 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0x4 => {
-            var x = (self.opcode & 0x0F00) >> 8;
+            const x = (self.opcode & 0x0F00) >> 8;
 
             if (self.registers[x] != self.opcode & 0x00FF) {
                 self.increment_pc();
@@ -118,8 +118,8 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0x5 => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var y = (self.opcode & 0x00F0) >> 4;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const y = (self.opcode & 0x00F0) >> 4;
 
             if (self.registers[x] == self.registers[y]) {
                 self.increment_pc();
@@ -127,20 +127,20 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0x6 => {
-            var x = (self.opcode & 0x0F00) >> 8;
+            const x = (self.opcode & 0x0F00) >> 8;
             self.registers[x] = @truncate(self.opcode & 0x00FF);
             self.increment_pc();
         },
         0x7 => {
             @setRuntimeSafety(false);
-            var x = (self.opcode & 0x0F00) >> 8;
+            const x = (self.opcode & 0x0F00) >> 8;
             self.registers[x] += @truncate(self.opcode & 0x00FF);
             self.increment_pc();
         },
         0x8 => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var y = (self.opcode & 0x00F0) >> 4;
-            var m = self.opcode & 0x000F;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const y = (self.opcode & 0x00F0) >> 4;
+            const m = self.opcode & 0x000F;
 
             switch (m) {
                 0 => self.registers[x] = self.registers[y],
@@ -179,8 +179,8 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0x9 => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var y = (self.opcode & 0x00F0) >> 4;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const y = (self.opcode & 0x00F0) >> 4;
 
             if (self.registers[x] != self.registers[y]) {
                 self.increment_pc();
@@ -195,8 +195,8 @@ pub fn cycle(self: *Self) void {
             self.program_counter = (self.opcode & 0x0FFF) + @as(u16, @intCast(self.registers[0]));
         },
         0xC => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var kk = self.opcode & 0x00FF;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const kk = self.opcode & 0x00FF;
 
             self.registers[x] = @truncate(@as(u8, @intCast(cstd.rand())) & kk);
             self.increment_pc();
@@ -204,16 +204,16 @@ pub fn cycle(self: *Self) void {
         0xD => {
             self.registers[0xF] = 0;
 
-            var xx = (self.opcode & 0x0F00) >> 8;
-            var yy = (self.opcode & 0x00F0) >> 4;
-            var nn = self.opcode & 0x000F;
+            const xx = (self.opcode & 0x0F00) >> 8;
+            const yy = (self.opcode & 0x00F0) >> 4;
+            const nn = self.opcode & 0x000F;
 
-            var regX = self.registers[xx];
-            var regY = self.registers[yy];
+            const regX = self.registers[xx];
+            const regY = self.registers[yy];
 
             var y: usize = 0;
             while (y < nn) : (y += 1) {
-                var pixel = self.memory[self.index + y];
+                const pixel = self.memory[self.index + y];
 
                 var x: usize = 0;
                 while (x < 8) : (x += 1) {
@@ -221,10 +221,10 @@ pub fn cycle(self: *Self) void {
 
                     // 0b01010101
                     if (pixel & (msb >> @intCast(x)) != 0) {
-                        var tX = (regX + x) % 64;
-                        var tY = (regY + y) % 32;
+                        const tX = (regX + x) % 64;
+                        const tY = (regY + y) % 32;
 
-                        var idx = tX + tY * 64;
+                        const idx = tX + tY * 64;
 
                         self.graphics[idx] ^= 1;
 
@@ -237,8 +237,8 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0xE => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var kk = self.opcode & 0x00FF;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const kk = self.opcode & 0x00FF;
 
             if (kk == 0x9E) {
                 if (self.keys[self.registers[x]] == 1) {
@@ -252,8 +252,8 @@ pub fn cycle(self: *Self) void {
             self.increment_pc();
         },
         0xF => {
-            var x = (self.opcode & 0x0F00) >> 8;
-            var kk = self.opcode & 0x00FF;
+            const x = (self.opcode & 0x0F00) >> 8;
+            const kk = self.opcode & 0x00FF;
 
             if (kk == 0x07) {
                 self.registers[x] = self.delay_timer;

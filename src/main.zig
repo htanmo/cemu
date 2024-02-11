@@ -1,6 +1,6 @@
 const std = @import("std");
 const sdl = @cImport({
-    @cInclude("SDL.h");
+    @cInclude("SDL2/SDL.h");
 });
 const CHIP8 = @import("chip.zig");
 const process = std.process;
@@ -71,7 +71,7 @@ pub fn loadROM(filename: []const u8) !void {
     var inputFile = try std.fs.cwd().openFile(filename, .{});
     defer inputFile.close();
 
-    var size = try inputFile.getEndPos();
+    const size = try inputFile.getEndPos();
     var reader = inputFile.reader();
 
     var i: usize = 0;
@@ -95,8 +95,8 @@ pub fn main() !void {
     var args = try process.argsWithAllocator(allocator);
     _ = args.skip();
 
-    var filename = args.next() orelse {
-        std.debug.print("No ROM given!", .{});
+    const filename = args.next() orelse {
+        std.debug.print("No ROM given!\n", .{});
         return;
     };
 

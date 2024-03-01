@@ -1,7 +1,5 @@
 const std = @import("std");
-const sdl = @cImport({
-    @cInclude("SDL2/SDL.h");
-});
+const sdl = @import("sdl.zig");
 const CHIP8 = @import("chip.zig");
 const process = std.process;
 
@@ -86,9 +84,6 @@ pub fn main() !void {
 
     const allocator = arena.allocator();
 
-    try init();
-    defer deinit();
-
     cpu = try allocator.create(CHIP8);
     cpu.init();
 
@@ -101,6 +96,9 @@ pub fn main() !void {
     };
 
     try loadROM(filename);
+
+    try init();
+    defer deinit();
 
     var running = true;
     while (running) {

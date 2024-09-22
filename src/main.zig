@@ -1,5 +1,7 @@
 const std = @import("std");
-const sdl = @import("sdl.zig");
+const sdl = @cImport({
+    @cInclude("SDL2/SDL.h");
+});
 const CHIP8 = @import("chip.zig");
 const process = std.process;
 
